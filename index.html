@@ -1,136 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Happy 20th Birthday, Akanksha!</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      background: linear-gradient(135deg, #ffe3e3 0%, #ffe7fb 100%);
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      overflow-x: hidden;
-    }
-    .container {
-      background: rgba(255,255,255,0.85);
-      border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      padding: 2rem 2.5rem;
-      text-align: center;
-      max-width: 90vw;
-    }
-    h1 {
-      color: #ff1493;
-      font-size: 2.6rem;
-      margin-bottom: 0.7rem;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 8px #ffd6ee;
-    }
-    h2 {
-      color: #6b21a8;
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      font-weight: 400;
-    }
-    .name {
-      font-size: 1.3rem;
-      color: #0077b6;
-      font-weight: bold;
-      margin-bottom: 1rem;
-    }
-    .message {
-      color: #333;
-      font-size: 1.1rem;
-      margin-bottom: 1.5rem;
-    }
-    .signature {
-      margin-top: 2rem;
-      font-size: 1rem;
-      color: #6c757d;
-      font-style: italic;
-    }
-    /* Confetti style */
-    .confetti {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 20th Birthday, Akanksha!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-pacifico {
+            font-family: 'Pacifico', cursive;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #FFDDE1, #EE9CA7, #B490CA, #89BBFE, #89F7FE);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #main-content {
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        }
+        .hidden-content {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        .balloon {
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            cursor: pointer;
+        }
+        .balloon.popped {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+        .moment {
+            transition: all 0.5s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .moment.visible {
+            max-height: 1000px; /* Large enough to not clip content */
+        }
+        .toast {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+    </style>
 </head>
-<body>
-  <canvas class="confetti"></canvas>
-  <div class="container">
-      <h1>🎉 Happy 20th Birthday! 🎂</h1>
-      <div class="name">Akanksha Ramkumar Singh Pawar</div>
-      <h2>You're officially out of your teens!</h2>
-      <div class="message">
-        Wishing you a day filled with laughter, joy, and unforgettable memories.<br>
-        May this new decade bring you even more happiness, success, and adventures.<br>
-        Thank you for being the most amazing friend anyone could ask for!
-      </div>
-      <div class="signature">
-        With lots of love,<br>
-        Your best friend 💖
-      </div>
-  </div>
-  <script>
-  // Simple confetti animation
-  const confettiColors = ["#ff1493", "#ffd700", "#00bfff", "#32cd32", "#ff7f50", "#6a5acd", "#ff69b4"];
-  const confettiCount = 100;
-  const canvas = document.querySelector('.confetti');
-  const ctx = canvas.getContext('2d');
-  let W = window.innerWidth;
-  let H = window.innerHeight;
-  canvas.width = W;
-  canvas.height = H;
-  window.addEventListener('resize', () => {
-      W = window.innerWidth; H = window.innerHeight;
-      canvas.width = W; canvas.height = H;
-  });
-  function randomInt(min, max) { return Math.floor(Math.random()*(max-min)+min); }
-  const confetti = [];
-  for(let i=0;i<confettiCount;i++){
-    confetti.push({
-      x: randomInt(0,W),
-      y: randomInt(-H,0),
-      r: randomInt(4,8),
-      d: randomInt(8,16),
-      color: confettiColors[randomInt(0,confettiColors.length)],
-      tilt: randomInt(-10,10),
-      tiltAngle: Math.random()*Math.PI*2,
-      tiltSpeed: Math.random()*0.1+0.05
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Landing Hero Section -->
+    <section id="hero" class="fixed inset-0 hero-gradient flex flex-col items-center justify-center text-white text-center p-8 z-20">
+        <canvas id="confetti-canvas" class="absolute inset-0 w-full h-full"></canvas>
+        <div class="relative z-10">
+            <h1 class="font-pacifico text-4xl md:text-7xl font-bold mb-4 drop-shadow-lg">Happy 20th Birthday, Akanksha!</h1>
+            <p class="text-xl md:text-2xl font-semibold mb-8 bg-black bg-opacity-20 px-4 py-2 rounded-full backdrop-blur-sm">Turning 20 — Today!</p>
+            <button id="reveal-button" class="bg-white text-pink-500 font-bold py-4 px-8 rounded-full text-lg shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                Unwrap Your Surprise
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main id="main-content" class="hidden-content relative z-10 bg-white">
+        <div class="max-w-4xl mx-auto p-4 md:p-8 space-y-16">
+
+            <!-- 1. Personalized Message -->
+            <section class="text-center bg-pink-50 p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl md:text-3xl font-pacifico text-pink-600 mb-4">A Note For You</h2>
+                <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
+                    <!-- REPLACE WITH YOUR PERSONAL MESSAGE -->
+                    Here's to two decades of sparkle, laughter, and incredible you. May your next chapter be as bright and beautiful as your spirit!
+                    <!-- END OF MESSAGE -->
+                </p>
+            </section>
+
+            <!-- 2. Pop the Balloons -->
+            <section class="text-center">
+                <h2 class="text-2xl md:text-3xl font-pacifico text-teal-600 mb-6">Pop a Balloon!</h2>
+                <div id="balloon-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Balloons will be generated by JS -->
+                </div>
+            </section>
+
+            <!-- 3. 20 Little Moments -->
+            <section>
+                <h2 class="text-2xl md:text-3xl font-pacifico text-purple-600 text-center mb-6">20 Little Moments</h2>
+                <div id="moments-container" class="space-y-2">
+                     <!-- Collapsible moments will be generated by JS -->
+                </div>
+            </section>
+
+            <!-- 4. Photo Gallery -->
+            <section>
+                <h2 class="text-2xl md:text-3xl font-pacifico text-coral-600 text-center mb-6">A Walk Down Memory Lane</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- REPLACE WITH PHOTO URLS -->
+                    <img src="https://placehold.co/600x600/FFDDE1/EE9CA7?text=Your+Photo" alt="Memory 1" class="rounded-lg shadow-md aspect-square object-cover">
+                    <img src="https://placehold.co/600x600/B490CA/89BBFE?text=Your+Photo" alt="Memory 2" class="rounded-lg shadow-md aspect-square object-cover">
+                    <img src="https://placehold.co/600x600/89F7FE/89BBFE?text=Your+Photo" alt="Memory 3" class="rounded-lg shadow-md aspect-square object-cover">
+                    <img src="https://placehold.co/600x600/EE9CA7/FFDDE1?text=Your+Photo" alt="Memory 4" class="rounded-lg shadow-md aspect-square object-cover">
+                    <img src="https://placehold.co/600x600/89BBFE/B490CA?text=Your+Photo" alt="Memory 5" class="rounded-lg shadow-md aspect-square object-cover">
+                    <div class="bg-gray-100 rounded-lg shadow-md flex items-center justify-center aspect-square">
+                        <p class="text-gray-500 text-center p-4">Add your favorite photos!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Music Toggle -->
+            <section class="text-center">
+                 <h2 class="text-2xl md:text-3xl font-pacifico text-pink-600 mb-4">Party Tune</h2>
+                <button id="music-toggle" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-teal-600 transition-colors">
+                    Play Music
+                </button>
+                <p class="text-xs text-gray-400 mt-2">Music: "Happy Birthday" - A simple tune</p>
+            </section>
+
+            <!-- 6. Share Widget -->
+            <section class="text-center">
+                <button id="copy-link-button" class="bg-purple-500 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-purple-600 transition-colors">
+                    Copy Link & Send to Akanksha
+                </button>
+            </section>
+
+        </div>
+
+        <!-- 7. Footer -->
+        <footer class="text-center py-8">
+            <p class="text-gray-500">Made with ♥ by <!-- REPLACE WITH YOUR NAME -->Your Friends<!-- END OF NAME --></p>
+        </footer>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-xl opacity-0 translate-y-3 toast">
+        Link copied to clipboard!
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const heroSection = document.getElementById('hero');
+        const mainContent = document.getElementById('main-content');
+        const revealButton = document.getElementById('reveal-button');
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const musicToggle = document.getElementById('music-toggle');
+        const copyLinkButton = document.getElementById('copy-link-button');
+        const toast = document.getElementById('toast');
+
+        // --- Confetti ---
+        const confettiInstance = confetti.create(confettiCanvas, {
+            resize: true,
+            useWorker: true
+        });
+
+        function fireConfetti() {
+            confettiInstance({
+                particleCount: 150,
+                spread: 180,
+                origin: { y: 0.6 }
+            });
+        }
+        fireConfetti();
+        const confettiInterval = setInterval(fireConfetti, 3000);
+
+
+        // --- Reveal Main Content ---
+        revealButton.addEventListener('click', () => {
+            heroSection.style.transition = 'opacity 1s, transform 1s';
+            heroSection.style.opacity = '0';
+            heroSection.style.transform = 'scale(1.2)';
+            
+            setTimeout(() => {
+                heroSection.style.display = 'none';
+                mainContent.classList.remove('hidden-content');
+                clearInterval(confettiInterval);
+            }, 1000);
+        });
+
+        // --- Sound Synthesis ---
+        const synth = new Tone.Synth({
+            oscillator: { type: 'sine' },
+            envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
+        }).toDestination();
+
+        const synthPlayer = new Tone.PolySynth(Tone.Synth).toDestination();
+        const musicNotes = [
+            'C4', 'C4', 'D4', 'C4', 'F4', 'E4',
+            'C4', 'C4', 'D4', 'C4', 'G4', 'F4',
+            'C4', 'C4', 'C5', 'A4', 'F4', 'E4', 'D4',
+            'Bb4', 'Bb4', 'A4', 'F4', 'G4', 'F4'
+        ];
+        let noteIndex = 0;
+        let musicLoop;
+
+        musicToggle.addEventListener('click', async () => {
+            await Tone.start();
+            if (Tone.Transport.state !== 'started') {
+                musicLoop = new Tone.Sequence((time, note) => {
+                    synthPlayer.triggerAttackRelease(note, "8n", time);
+                }, musicNotes, "4n").start(0);
+
+                Tone.Transport.start();
+                musicToggle.textContent = 'Pause Music';
+                musicToggle.classList.replace('bg-teal-500', 'bg-red-500');
+            } else {
+                Tone.Transport.stop();
+                Tone.Transport.cancel();
+                noteIndex = 0; // Reset for next play
+                musicToggle.textContent = 'Play Music';
+                musicToggle.classList.replace('bg-red-500', 'bg-teal-500');
+            }
+        });
+
+
+        // --- Balloons ---
+        const balloonGrid = document.getElementById('balloon-grid');
+        const wishes = [
+            "Wishing you the best!", // WISH 1
+            "To a year of joy!",      // WISH 2
+            "Keep shining brightly!", // WISH 3
+            "So proud of you!",       // WISH 4
+            "Cheers to 20!",          // WISH 5
+            "Dream big this year!",   // WISH 6
+            "You're amazing!",        // WISH 7
+            "Happy Birthday!"         // WISH 8
+        ];
+        const balloonColors = ['bg-pink-400', 'bg-teal-400', 'bg-purple-400', 'bg-coral-400', 'bg-yellow-400', 'bg-indigo-400', 'bg-green-400', 'bg-red-400'];
+
+        wishes.forEach((wish, index) => {
+            const balloonContainer = document.createElement('div');
+            balloonContainer.className = 'relative flex items-center justify-center';
+
+            const balloon = document.createElement('div');
+            balloon.className = `w-24 h-32 md:w-32 md:h-40 rounded-full flex items-center justify-center text-white font-bold text-center p-2 balloon ${balloonColors[index % balloonColors.length]}`;
+            balloon.innerHTML = `<span class="select-none">POP!</span>`;
+
+            const wishText = document.createElement('p');
+            wishText.className = 'absolute text-gray-700 font-semibold opacity-0 transition-opacity duration-300';
+            wishText.textContent = wish;
+
+            balloonContainer.appendChild(wishText);
+            balloonContainer.appendChild(balloon);
+
+            balloon.addEventListener('click', () => {
+                if (!balloon.classList.contains('popped')) {
+                    synth.triggerAttackRelease("C5", "8n");
+                    balloon.classList.add('popped');
+                    setTimeout(() => {
+                        wishText.style.opacity = '1';
+                    }, 100);
+                }
+            }, { once: true });
+
+            balloonGrid.appendChild(balloonContainer);
+        });
+
+        // --- Moments ---
+        const momentsContainer = document.getElementById('moments-container');
+        const moments = [
+            "Your first steps... maybe.", // MILESTONE 1
+            "Survived teenage years. High five!", // MILESTONE 2
+            "That time you laughed so hard...", // MILESTONE 3
+            "Mastering the art of instant noodles.", // MILESTONE 4
+            "The day you found your favorite song.", // MILESTONE 5
+            "First solo trip (even to the store).", // MILESTONE 6
+            "Becoming a plant parent.", // MILESTONE 7
+            "Learning that one cool new thing.", // MILESTONE 8
+            "That amazing haircut.", // MILESTONE 9
+            "Discovering your coffee order.", // MILESTONE 10
+            "Acing that test you worried about.", // MILESTONE 11
+            "First time voting.", // MILESTONE 12
+            "Building your first IKEA furniture.", // MILESTONE 13
+            "The moment you felt truly independent.", // MILESTONE 14
+            "Your kindness to a stranger.", // MILESTONE 15
+            "Finding a book that changed you.", // MILESTONE 16
+            "That inside joke we still laugh about.", // MILESTONE 17
+            "The day you conquered a fear.", // MILESTONE 18
+            "Perfecting your signature dish.", // MILESTONE 19
+            "Today. Turning 20 and being fabulous.", // MILESTONE 20
+        ];
+        moments.forEach((momentText, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'border rounded-lg';
+            
+            const button = document.createElement('button');
+            button.className = 'w-full text-left p-4 font-semibold focus:outline-none flex justify-between items-center';
+            button.innerHTML = `<span>Moment #${index + 1}</span> <span class="text-xl transform transition-transform duration-300">+</span>`;
+
+            const content = document.createElement('div');
+            content.className = 'px-4 pb-4 text-gray-600 moment';
+            content.textContent = momentText;
+            
+            wrapper.appendChild(button);
+            wrapper.appendChild(content);
+
+            button.addEventListener('click', () => {
+                const isVisible = content.classList.contains('visible');
+                // Close all others
+                document.querySelectorAll('.moment.visible').forEach(el => {
+                    if (el !== content) {
+                        el.classList.remove('visible');
+                        el.previousElementSibling.querySelector('span:last-child').style.transform = 'rotate(0deg)';
+                    }
+                });
+                
+                content.classList.toggle('visible');
+                button.querySelector('span:last-child').style.transform = content.classList.contains('visible') ? 'rotate(45deg)' : 'rotate(0deg)';
+            });
+
+            momentsContainer.appendChild(wrapper);
+        });
+
+        // --- Copy Link ---
+        copyLinkButton.addEventListener('click', () => {
+            const url = window.location.href;
+            // A fallback for navigator.clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast();
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast();
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        });
+        
+        function showToast() {
+            toast.classList.remove('opacity-0', 'translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-3');
+            }, 3000);
+        }
     });
-  }
-  function drawConfetti(){
-    ctx.clearRect(0,0,W,H);
-    confetti.forEach(c=>{
-      ctx.beginPath();
-      ctx.ellipse(c.x, c.y, c.r, c.r/2, c.tiltAngle, 0, 2*Math.PI);
-      ctx.fillStyle = c.color;
-      ctx.fill();
-    });
-  }
-  function updateConfetti(){
-    confetti.forEach(c=>{
-      c.y += c.d/2;
-      c.x += Math.sin(c.tiltAngle)*2;
-      c.tiltAngle += c.tiltSpeed;
-      if(c.y > H){
-        c.y = randomInt(-20,0);
-        c.x = randomInt(0,W);
-      }
-    });
-  }
-  function loop(){
-    drawConfetti();
-    updateConfetti();
-    requestAnimationFrame(loop);
-  }
-  loop();
-  </script>
+</script>
+
 </body>
 </html>
