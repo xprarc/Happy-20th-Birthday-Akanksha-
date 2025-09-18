@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Happy 20th Birthday, Akanksha!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(135deg, #ffe3e3 0%, #ffe7fb 100%);
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    .container {
+      background: rgba(255,255,255,0.85);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      padding: 2rem 2.5rem;
+      text-align: center;
+      max-width: 90vw;
+    }
+    h1 {
+      color: #ff1493;
+      font-size: 2.6rem;
+      margin-bottom: 0.7rem;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #ffd6ee;
+    }
+    h2 {
+      color: #6b21a8;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+    .name {
+      font-size: 1.3rem;
+      color: #0077b6;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .message {
+      color: #333;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+    .signature {
+      margin-top: 2rem;
+      font-size: 1rem;
+      color: #6c757d;
+      font-style: italic;
+    }
+    /* Confetti style */
+    .confetti {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <canvas class="confetti"></canvas>
+  <div class="container">
+      <h1>🎉 Happy 20th Birthday! 🎂</h1>
+      <div class="name">Akanksha Ramkumar Singh Pawar</div>
+      <h2>You're officially out of your teens!</h2>
+      <div class="message">
+        Wishing you a day filled with laughter, joy, and unforgettable memories.<br>
+        May this new decade bring you even more happiness, success, and adventures.<br>
+        Thank you for being the most amazing friend anyone could ask for!
+      </div>
+      <div class="signature">
+        With lots of love,<br>
+        Your best friend 💖
+      </div>
+  </div>
+  <script>
+  // Simple confetti animation
+  const confettiColors = ["#ff1493", "#ffd700", "#00bfff", "#32cd32", "#ff7f50", "#6a5acd", "#ff69b4"];
+  const confettiCount = 100;
+  const canvas = document.querySelector('.confetti');
+  const ctx = canvas.getContext('2d');
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+  window.addEventListener('resize', () => {
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = W; canvas.height = H;
+  });
+  function randomInt(min, max) { return Math.floor(Math.random()*(max-min)+min); }
+  const confetti = [];
+  for(let i=0;i<confettiCount;i++){
+    confetti.push({
+      x: randomInt(0,W),
+      y: randomInt(-H,0),
+      r: randomInt(4,8),
+      d: randomInt(8,16),
+      color: confettiColors[randomInt(0,confettiColors.length)],
+      tilt: randomInt(-10,10),
+      tiltAngle: Math.random()*Math.PI*2,
+      tiltSpeed: Math.random()*0.1+0.05
+    });
+  }
+  function drawConfetti(){
+    ctx.clearRect(0,0,W,H);
+    confetti.forEach(c=>{
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, c.r, c.r/2, c.tiltAngle, 0, 2*Math.PI);
+      ctx.fillStyle = c.color;
+      ctx.fill();
+    });
+  }
+  function updateConfetti(){
+    confetti.forEach(c=>{
+      c.y += c.d/2;
+      c.x += Math.sin(c.tiltAngle)*2;
+      c.tiltAngle += c.tiltSpeed;
+      if(c.y > H){
+        c.y = randomInt(-20,0);
+        c.x = randomInt(0,W);
+      }
+    });
+  }
+  function loop(){
+    drawConfetti();
+    updateConfetti();
+    requestAnimationFrame(loop);
+  }
+  loop();
+  </script>
+</body>
+</html>
