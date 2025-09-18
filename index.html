@@ -5,353 +5,355 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy 20th Birthday, Akanksha!</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            overflow: hidden;
         }
         .font-pacifico {
             font-family: 'Pacifico', cursive;
         }
-        .hero-gradient {
-            background: linear-gradient(135deg, #FFDDE1, #EE9CA7, #B490CA, #89BBFE, #89F7FE);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
+        /* Glowing text effect */
+        .glowing-text {
+            animation: glow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 10px #fff, 0 0 20px #ff00de, 0 0 30px #ff00de, 0 0 40px #ff00de, 0 0 50px #ff00de, 0 0 60px #ff00de, 0 0 70px #ff00de;
         }
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #fff, 0 0 20px #ff00de, 0 0 30px #ff00de, 0 0 40px #ff00de;
+            }
+            to {
+                text-shadow: 0 0 20px #fff, 0 0 30px #4d95ff, 0 0 40px #4d95ff, 0 0 50px #4d95ff;
+            }
         }
-        #main-content {
-            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        /* Canvas for animations to cover the full screen */
+        .fullscreen-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
-        .hidden-content {
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-        }
+        /* Balloon styling and pop animation */
         .balloon {
-            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            border-radius: 50%;
             cursor: pointer;
+            transition: transform 0.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .balloon.popped {
-            transform: scale(1.5);
-            opacity: 0;
+        .balloon:before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 10px solid;
         }
-        .moment {
-            transition: all 0.5s ease-in-out;
-            max-height: 0;
-            overflow: hidden;
+        .balloon:hover {
+            transform: scale(1.1);
         }
-        .moment.visible {
-            max-height: 1000px; /* Large enough to not clip content */
+        .popped {
+            animation: pop 0.3s ease-in-out forwards;
         }
-        .toast {
-            transition: opacity 0.3s, transform 0.3s;
+        @keyframes pop {
+            0% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-900 text-white">
 
-    <!-- Landing Hero Section -->
-    <section id="hero" class="fixed inset-0 hero-gradient flex flex-col items-center justify-center text-white text-center p-8 z-20">
-        <canvas id="confetti-canvas" class="absolute inset-0 w-full h-full"></canvas>
-        <div class="relative z-10">
-            <h1 class="font-pacifico text-4xl md:text-7xl font-bold mb-4 drop-shadow-lg">Happy 20th Birthday, Akanksha!</h1>
-            <p class="text-xl md:text-2xl font-semibold mb-8 bg-black bg-opacity-20 px-4 py-2 rounded-full backdrop-blur-sm">Turning 20 — Today!</p>
-            <button id="reveal-button" class="bg-white text-pink-500 font-bold py-4 px-8 rounded-full text-lg shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                Unwrap Your Surprise
-            </button>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main id="main-content" class="hidden-content relative z-10 bg-white">
-        <div class="max-w-4xl mx-auto p-4 md:p-8 space-y-16">
-
-            <!-- 1. Personalized Message -->
-            <section class="text-center bg-pink-50 p-8 rounded-2xl shadow-lg">
-                <h2 class="text-2xl md:text-3xl font-pacifico text-pink-600 mb-4">A Note For You</h2>
-                <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
-                    <!-- REPLACE WITH YOUR PERSONAL MESSAGE -->
-                    Here's to two decades of sparkle, laughter, and incredible you. May your next chapter be as bright and beautiful as your spirit!
-                    <!-- END OF MESSAGE -->
-                </p>
-            </section>
-
-            <!-- 2. Pop the Balloons -->
-            <section class="text-center">
-                <h2 class="text-2xl md:text-3xl font-pacifico text-teal-600 mb-6">Pop a Balloon!</h2>
-                <div id="balloon-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
-                    <!-- Balloons will be generated by JS -->
-                </div>
-            </section>
-
-            <!-- 3. 20 Little Moments -->
-            <section>
-                <h2 class="text-2xl md:text-3xl font-pacifico text-purple-600 text-center mb-6">20 Little Moments</h2>
-                <div id="moments-container" class="space-y-2">
-                     <!-- Collapsible moments will be generated by JS -->
-                </div>
-            </section>
-
-            <!-- 4. Photo Gallery -->
-            <section>
-                <h2 class="text-2xl md:text-3xl font-pacifico text-coral-600 text-center mb-6">A Walk Down Memory Lane</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <!-- REPLACE WITH PHOTO URLS -->
-                    <img src="https://placehold.co/600x600/FFDDE1/EE9CA7?text=Your+Photo" alt="Memory 1" class="rounded-lg shadow-md aspect-square object-cover">
-                    <img src="https://placehold.co/600x600/B490CA/89BBFE?text=Your+Photo" alt="Memory 2" class="rounded-lg shadow-md aspect-square object-cover">
-                    <img src="https://placehold.co/600x600/89F7FE/89BBFE?text=Your+Photo" alt="Memory 3" class="rounded-lg shadow-md aspect-square object-cover">
-                    <img src="https://placehold.co/600x600/EE9CA7/FFDDE1?text=Your+Photo" alt="Memory 4" class="rounded-lg shadow-md aspect-square object-cover">
-                    <img src="https://placehold.co/600x600/89BBFE/B490CA?text=Your+Photo" alt="Memory 5" class="rounded-lg shadow-md aspect-square object-cover">
-                    <div class="bg-gray-100 rounded-lg shadow-md flex items-center justify-center aspect-square">
-                        <p class="text-gray-500 text-center p-4">Add your favorite photos!</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 5. Music Toggle -->
-            <section class="text-center">
-                 <h2 class="text-2xl md:text-3xl font-pacifico text-pink-600 mb-4">Party Tune</h2>
-                <button id="music-toggle" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-teal-600 transition-colors">
-                    Play Music
-                </button>
-                <p class="text-xs text-gray-400 mt-2">Music: "Happy Birthday" - A simple tune</p>
-            </section>
-
-            <!-- 6. Share Widget -->
-            <section class="text-center">
-                <button id="copy-link-button" class="bg-purple-500 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-purple-600 transition-colors">
-                    Copy Link & Send to Akanksha
-                </button>
-            </section>
-
-        </div>
-
-        <!-- 7. Footer -->
-        <footer class="text-center py-8">
-            <p class="text-gray-500">Made with ♥ by <!-- REPLACE WITH YOUR NAME -->Your Friends<!-- END OF NAME --></p>
-        </footer>
-
-    </main>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-xl opacity-0 translate-y-3 toast">
-        Link copied to clipboard!
+    <!-- Landing Page View -->
+    <div id="landing-page" class="h-screen w-full flex flex-col items-center justify-center text-center p-4">
+        <canvas id="confetti-canvas" class="fullscreen-canvas"></canvas>
+        <h1 class="glowing-text font-pacifico text-4xl md:text-6xl lg:text-7xl">Happy 20th Birthday, Akanksha!</h1>
+        <p class="mt-4 text-lg md:text-xl text-gray-300">A special surprise is waiting for you.</p>
+        <button id="surprise-button" class="mt-8 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 duration-300">
+            Unwrap Your Surprise
+        </button>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const heroSection = document.getElementById('hero');
-        const mainContent = document.getElementById('main-content');
-        const revealButton = document.getElementById('reveal-button');
+    <!-- Celebration Page View (Initially Hidden) -->
+    <div id="celebration-page" class="hidden h-screen w-full flex flex-col items-center justify-center p-4">
+        <canvas id="fireworks-canvas" class="fullscreen-canvas"></canvas>
+        <div class="z-10 text-center bg-black bg-opacity-50 p-6 md:p-10 rounded-2xl shadow-2xl max-w-2xl">
+            <h2 class="font-pacifico text-3xl md:text-5xl text-yellow-300">To the amazing Akanksha Ramkumar Singh Pawar!</h2>
+            <p class="mt-4 text-lg md:text-2xl leading-relaxed">
+                Dear Akanksha, 20 years of light, laughter, and limitless potential. Today is all about you!
+            </p>
+        </div>
+        <div id="balloon-container" class="absolute bottom-0 left-0 w-full h-1/3"></div>
+        <p class="z-10 mt-6 text-xl font-semibold">Pop a balloon to see a wish!</p>
+    </div>
+    
+    <!-- Wish Popup -->
+    <div id="wish-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div id="wish-text" class="bg-white text-gray-800 font-bold text-2xl p-8 rounded-lg shadow-xl text-center"></div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const landingPage = document.getElementById('landing-page');
+        const celebrationPage = document.getElementById('celebration-page');
+        const surpriseButton = document.getElementById('surprise-button');
+        const balloonContainer = document.getElementById('balloon-container');
+        const wishModal = document.getElementById('wish-modal');
+        const wishText = document.getElementById('wish-text');
+
+        // --- Birthday Wishes ---
+        const wishes = [
+            "Wishing you a day as bright as your smile!",
+            "May your 20s be filled with adventure and success!",
+            "Cheers to 20 years of being absolutely amazing!",
+            "Hope your birthday is just the beginning of a happy journey!",
+            "You deserve all the cake, happiness, and love today!",
+            "Sending you a universe of joy on your special day!",
+            "Happy Birthday! Keep shining and inspiring everyone.",
+            "May all your dreams and wishes come true this year!",
+            "Here's to another year of laughing until it hurts.",
+            "You make the world a better and brighter place."
+        ];
+        let wishesCopy = [...wishes];
+
+        // --- Confetti Animation ---
         const confettiCanvas = document.getElementById('confetti-canvas');
-        const musicToggle = document.getElementById('music-toggle');
-        const copyLinkButton = document.getElementById('copy-link-button');
-        const toast = document.getElementById('toast');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        let confettiParticles = [];
+        let confettiAnimationId;
 
-        // --- Confetti ---
-        const confettiInstance = confetti.create(confettiCanvas, {
-            resize: true,
-            useWorker: true
-        });
+        function setupCanvas(canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
-        function fireConfetti() {
-            confettiInstance({
-                particleCount: 150,
-                spread: 180,
-                origin: { y: 0.6 }
+        function createConfetti() {
+            const particleCount = 200;
+            const colors = ["#f9a8d4", "#f472b6", "#ec4899", "#a78bfa", "#8b5cf6", "#fde047", "#60a5fa"];
+            for (let i = 0; i < particleCount; i++) {
+                confettiParticles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    radius: Math.random() * 5 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speed: Math.random() * 3 + 1,
+                    tilt: Math.random() * 10,
+                    tiltAngle: 0,
+                    tiltAngleIncrement: Math.random() * 0.07 + 0.05
+                });
+            }
+        }
+
+        function drawConfetti() {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles.forEach(p => {
+                confettiCtx.beginPath();
+                confettiCtx.lineWidth = p.radius / 2;
+                confettiCtx.strokeStyle = p.color;
+                confettiCtx.moveTo(p.x + p.tilt, p.y);
+                confettiCtx.lineTo(p.x, p.y + p.tilt);
+                confettiCtx.stroke();
+            });
+            updateConfetti();
+        }
+        
+        function updateConfetti() {
+            confettiParticles.forEach(p => {
+                p.y += p.speed;
+                p.tiltAngle += p.tiltAngleIncrement;
+                p.tilt = Math.sin(p.tiltAngle) * 15;
+                if (p.y > confettiCanvas.height) {
+                    p.x = Math.random() * confettiCanvas.width;
+                    p.y = -20;
+                }
             });
         }
-        fireConfetti();
-        const confettiInterval = setInterval(fireConfetti, 3000);
 
+        function animateConfetti() {
+            drawConfetti();
+            confettiAnimationId = requestAnimationFrame(animateConfetti);
+        }
 
-        // --- Reveal Main Content ---
-        revealButton.addEventListener('click', () => {
-            heroSection.style.transition = 'opacity 1s, transform 1s';
-            heroSection.style.opacity = '0';
-            heroSection.style.transform = 'scale(1.2)';
-            
-            setTimeout(() => {
-                heroSection.style.display = 'none';
-                mainContent.classList.remove('hidden-content');
-                clearInterval(confettiInterval);
-            }, 1000);
-        });
+        // --- Fireworks Animation ---
+        const fireworksCanvas = document.getElementById('fireworks-canvas');
+        const fireworksCtx = fireworksCanvas.getContext('2d');
+        let fireworks = [];
+        let particles = [];
+        let fireworksAnimationId;
 
-        // --- Sound Synthesis ---
-        const synth = new Tone.Synth({
-            oscillator: { type: 'sine' },
-            envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
-        }).toDestination();
-
-        const synthPlayer = new Tone.PolySynth(Tone.Synth).toDestination();
-        const musicNotes = [
-            'C4', 'C4', 'D4', 'C4', 'F4', 'E4',
-            'C4', 'C4', 'D4', 'C4', 'G4', 'F4',
-            'C4', 'C4', 'C5', 'A4', 'F4', 'E4', 'D4',
-            'Bb4', 'Bb4', 'A4', 'F4', 'G4', 'F4'
-        ];
-        let noteIndex = 0;
-        let musicLoop;
-
-        musicToggle.addEventListener('click', async () => {
-            await Tone.start();
-            if (Tone.Transport.state !== 'started') {
-                musicLoop = new Tone.Sequence((time, note) => {
-                    synthPlayer.triggerAttackRelease(note, "8n", time);
-                }, musicNotes, "4n").start(0);
-
-                Tone.Transport.start();
-                musicToggle.textContent = 'Pause Music';
-                musicToggle.classList.replace('bg-teal-500', 'bg-red-500');
-            } else {
-                Tone.Transport.stop();
-                Tone.Transport.cancel();
-                noteIndex = 0; // Reset for next play
-                musicToggle.textContent = 'Play Music';
-                musicToggle.classList.replace('bg-red-500', 'bg-teal-500');
-            }
-        });
-
-
-        // --- Balloons ---
-        const balloonGrid = document.getElementById('balloon-grid');
-        const wishes = [
-            "Wishing you the best!", // WISH 1
-            "To a year of joy!",      // WISH 2
-            "Keep shining brightly!", // WISH 3
-            "So proud of you!",       // WISH 4
-            "Cheers to 20!",          // WISH 5
-            "Dream big this year!",   // WISH 6
-            "You're amazing!",        // WISH 7
-            "Happy Birthday!"         // WISH 8
-        ];
-        const balloonColors = ['bg-pink-400', 'bg-teal-400', 'bg-purple-400', 'bg-coral-400', 'bg-yellow-400', 'bg-indigo-400', 'bg-green-400', 'bg-red-400'];
-
-        wishes.forEach((wish, index) => {
-            const balloonContainer = document.createElement('div');
-            balloonContainer.className = 'relative flex items-center justify-center';
-
-            const balloon = document.createElement('div');
-            balloon.className = `w-24 h-32 md:w-32 md:h-40 rounded-full flex items-center justify-center text-white font-bold text-center p-2 balloon ${balloonColors[index % balloonColors.length]}`;
-            balloon.innerHTML = `<span class="select-none">POP!</span>`;
-
-            const wishText = document.createElement('p');
-            wishText.className = 'absolute text-gray-700 font-semibold opacity-0 transition-opacity duration-300';
-            wishText.textContent = wish;
-
-            balloonContainer.appendChild(wishText);
-            balloonContainer.appendChild(balloon);
-
-            balloon.addEventListener('click', () => {
-                if (!balloon.classList.contains('popped')) {
-                    synth.triggerAttackRelease("C5", "8n");
-                    balloon.classList.add('popped');
-                    setTimeout(() => {
-                        wishText.style.opacity = '1';
-                    }, 100);
-                }
-            }, { once: true });
-
-            balloonGrid.appendChild(balloonContainer);
-        });
-
-        // --- Moments ---
-        const momentsContainer = document.getElementById('moments-container');
-        const moments = [
-            "Your first steps... maybe.", // MILESTONE 1
-            "Survived teenage years. High five!", // MILESTONE 2
-            "That time you laughed so hard...", // MILESTONE 3
-            "Mastering the art of instant noodles.", // MILESTONE 4
-            "The day you found your favorite song.", // MILESTONE 5
-            "First solo trip (even to the store).", // MILESTONE 6
-            "Becoming a plant parent.", // MILESTONE 7
-            "Learning that one cool new thing.", // MILESTONE 8
-            "That amazing haircut.", // MILESTONE 9
-            "Discovering your coffee order.", // MILESTONE 10
-            "Acing that test you worried about.", // MILESTONE 11
-            "First time voting.", // MILESTONE 12
-            "Building your first IKEA furniture.", // MILESTONE 13
-            "The moment you felt truly independent.", // MILESTONE 14
-            "Your kindness to a stranger.", // MILESTONE 15
-            "Finding a book that changed you.", // MILESTONE 16
-            "That inside joke we still laugh about.", // MILESTONE 17
-            "The day you conquered a fear.", // MILESTONE 18
-            "Perfecting your signature dish.", // MILESTONE 19
-            "Today. Turning 20 and being fabulous.", // MILESTONE 20
-        ];
-        moments.forEach((momentText, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'border rounded-lg';
-            
-            const button = document.createElement('button');
-            button.className = 'w-full text-left p-4 font-semibold focus:outline-none flex justify-between items-center';
-            button.innerHTML = `<span>Moment #${index + 1}</span> <span class="text-xl transform transition-transform duration-300">+</span>`;
-
-            const content = document.createElement('div');
-            content.className = 'px-4 pb-4 text-gray-600 moment';
-            content.textContent = momentText;
-            
-            wrapper.appendChild(button);
-            wrapper.appendChild(content);
-
-            button.addEventListener('click', () => {
-                const isVisible = content.classList.contains('visible');
-                // Close all others
-                document.querySelectorAll('.moment.visible').forEach(el => {
-                    if (el !== content) {
-                        el.classList.remove('visible');
-                        el.previousElementSibling.querySelector('span:last-child').style.transform = 'rotate(0deg)';
-                    }
+        function createFirework(x, y) {
+            const fireworkCount = 5;
+            for (let i = 0; i < fireworkCount; i++) {
+                fireworks.push({
+                    x,
+                    y: fireworksCanvas.height,
+                    tx: x,
+                    ty: y,
+                    speed: 2,
+                    angle: Math.PI * 1.5,
+                    vel: Math.random() + 2
                 });
-                
-                content.classList.toggle('visible');
-                button.querySelector('span:last-child').style.transform = content.classList.contains('visible') ? 'rotate(45deg)' : 'rotate(0deg)';
+            }
+        }
+
+        function createParticles(x, y) {
+            const particleCount = 100;
+            const colors = ["#f9a8d4", "#a78bfa", "#fde047", "#60a5fa", "#ffffff"];
+            for (let i = 0; i < particleCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                particles.push({
+                    x, y,
+                    speed: Math.random() * 4 + 1,
+                    angle,
+                    friction: 0.97,
+                    gravity: 1,
+                    alpha: 1,
+                    decay: Math.random() * 0.03 + 0.01,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+
+        function drawFireworks() {
+            fireworksCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            fireworksCtx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+            
+            fireworks.forEach((fw, i) => {
+                fireworksCtx.fillStyle = '#ffffff';
+                fireworksCtx.beginPath();
+                fireworksCtx.arc(fw.x, fw.y, 2, 0, Math.PI * 2);
+                fireworksCtx.fill();
+
+                const dx = fw.tx - fw.x;
+                const dy = fw.ty - fw.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < fw.vel) {
+                    fireworks.splice(i, 1);
+                    createParticles(fw.tx, fw.ty);
+                } else {
+                    fw.x += (dx / dist) * fw.vel;
+                    fw.y += (dy / dist) * fw.vel;
+                }
             });
 
-            momentsContainer.appendChild(wrapper);
-        });
+            particles.forEach((p, i) => {
+                p.speed *= p.friction;
+                p.x += Math.cos(p.angle) * p.speed;
+                p.y += Math.sin(p.angle) * p.speed + p.gravity;
+                p.alpha -= p.decay;
 
-        // --- Copy Link ---
-        copyLinkButton.addEventListener('click', () => {
-            const url = window.location.href;
-            // A fallback for navigator.clipboard
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    showToast();
-                });
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = url;
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showToast();
-                } catch (err) {
-                    console.error('Fallback: Oops, unable to copy', err);
+                if (p.alpha <= p.decay) {
+                    particles.splice(i, 1);
+                } else {
+                    fireworksCtx.save();
+                    fireworksCtx.globalAlpha = p.alpha;
+                    fireworksCtx.fillStyle = p.color;
+                    fireworksCtx.beginPath();
+                    fireworksCtx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                    fireworksCtx.fill();
+                    fireworksCtx.restore();
                 }
-                document.body.removeChild(textArea);
+            });
+        }
+        
+        function animateFireworks() {
+            drawFireworks();
+            fireworksAnimationId = requestAnimationFrame(animateFireworks);
+        }
+
+        // --- Balloon Interaction ---
+        function createBalloons() {
+            balloonContainer.innerHTML = ''; // Clear previous balloons
+            const balloonColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
+            for (let i = 0; i < 7; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                const color = balloonColors[i % balloonColors.length];
+                balloon.style.backgroundColor = color;
+                balloon.style.borderColor = color;
+                // Position balloons randomly along the bottom
+                balloon.style.left = `${Math.random() * 85 + 5}%`;
+                balloon.style.bottom = `${-100 + Math.random() * 40}px`;
+                // Animate them floating up
+                balloon.style.animation = `floatUp ${Math.random() * 5 + 5}s ease-in-out infinite alternate`;
+
+                balloon.addEventListener('click', () => {
+                    popBalloon(balloon);
+                });
+                balloonContainer.appendChild(balloon);
             }
+            // Add keyframes dynamically for unique float paths
+            const styleSheet = document.createElement("style");
+            styleSheet.type = "text/css";
+            styleSheet.innerText = `@keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-200px) rotate(${Math.random() * 20 - 10}deg); } }`;
+            document.head.appendChild(styleSheet);
+        }
+        
+        function popBalloon(balloon) {
+            // Play a pop sound
+            const popSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"+Array(1e3).join("1212"));
+            popSound.play();
+
+            balloon.classList.add('popped');
+            
+            setTimeout(() => {
+                if (wishesCopy.length === 0) {
+                    wishesCopy = [...wishes]; // Refill wishes if empty
+                }
+                const randomIndex = Math.floor(Math.random() * wishesCopy.length);
+                const wish = wishesCopy.splice(randomIndex, 1)[0];
+                
+                wishText.textContent = wish;
+                wishModal.classList.remove('hidden');
+
+                setTimeout(() => {
+                    wishModal.classList.add('hidden');
+                }, 3000);
+
+                if (balloonContainer.contains(balloon)) {
+                   balloonContainer.removeChild(balloon);
+                }
+            }, 300);
+        }
+
+        // --- Main Logic ---
+        surpriseButton.addEventListener('click', () => {
+            landingPage.classList.add('hidden');
+            celebrationPage.classList.remove('hidden');
+            
+            // Stop confetti and start fireworks
+            cancelAnimationFrame(confettiAnimationId);
+            confettiParticles = [];
+            
+            setupCanvas(fireworksCanvas);
+            animateFireworks();
+            // Launch fireworks periodically
+            setInterval(() => createFirework(Math.random() * fireworksCanvas.width, Math.random() * (fireworksCanvas.height / 2)), 1000);
+            
+            createBalloons();
         });
         
-        function showToast() {
-            toast.classList.remove('opacity-0', 'translate-y-3');
-            toast.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'translate-y-3');
-            }, 3000);
-        }
-    });
-</script>
+        // --- Initial Setup ---
+        window.addEventListener('resize', () => {
+            setupCanvas(confettiCanvas);
+            setupCanvas(fireworksCanvas);
+        });
 
+        setupCanvas(confettiCanvas);
+        createConfetti();
+        animateConfetti();
+    </script>
 </body>
 </html>
+
